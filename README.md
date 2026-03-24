@@ -27,17 +27,20 @@ That's the combo I'm testing here.
 I follow a structured “shot-based” approach when building apps:
 
 ### 🔹 Small apps
-- 1-shot prompt
+
+  - 1-shot prompt
   - a few fix prompts
 
 ### 🔹 Mid-range apps
-- 1-5 shot prompts
-  - 1 sample architecture idea
+
+  - 1-5 shot prompts
+  - 1 sample design idea
   - a few fix prompts
 
 ### 🔹 Large apps
-- 5-10 shot prompts
-  - 1 full architecture idea
+
+  - 5-10 shot prompts
+  - 1 full design idea
   - a few fix prompts
 
 ---
@@ -59,10 +62,11 @@ Otherwise:
 
 ## 📦 Apps
 
-| App | Size | Design Guide | Prompts | Fix Prompts | Dev Notes | Review | Success |
-|-----|------|-------------|---------|-------------|-----------|--------|---------|
-| [TaskFlow](taskflow/) | Small | 0 | 1 | 0 | [Dev Notes](taskflow/DEV_NOTES.md) | [Review](taskflow/REVIEW.md) | ✅ |
-| [Project Manager](project_manager/) | Small | 0 | 1 | 3 | [Dev Notes](project_manager/DEV_NOTES.md) | [Review](project_manager/REVIEW.md) | ✅ |
+| App | Size | Design Guide | Prompts | Fix Prompts | Jac MCP | Dev Notes | Review | Success |
+|-----|------|-------------|---------|-------------|---------|-----------|--------|---------|
+| [TaskFlow](taskflow/) | Micro | 0 | 1 | 0 | 0.1.7 | [Dev Notes](taskflow/DEV_NOTES.md) | [Review](taskflow/REVIEW.md) | ✅ |
+| [Project Manager](project_manager/) | Small	 | 0 | 1 | 3 | 0.1.7 | [Dev Notes](project_manager/DEV_NOTES.md) | [Review](project_manager/REVIEW.md) | ✅ |
+| [LearnHub](learn_hub/) | Compact | 0 | 1 | 5 | 0.1.7 | [Dev Notes](learn_hub/DEV_NOTES.md) | [Review](learn_hub/REVIEW.md) | ❌ |
 
 > Dev Notes — AI did the hard work, so it gets to write about its own problems 🤖
 >
