@@ -27,18 +27,18 @@ That's the combo I'm testing here.
 I follow a structured “shot-based” approach when building apps:
 
 ### 🔹 Small apps
-- 1-shot prompt  
-- + a few fix prompts  
+- 1-shot prompt
+  - a few fix prompts
 
 ### 🔹 Mid-range apps
-- 1-5 shot prompts  
-- + 1 sample architecture idea  
-- + a few fix prompts  
+- 1-5 shot prompts
+  - 1 sample architecture idea
+  - a few fix prompts
 
 ### 🔹 Large apps
-- 5-10 shot prompts  
-- + 1 full architecture idea  
-- + a few fix prompts  
+- 5-10 shot prompts
+  - 1 full architecture idea
+  - a few fix prompts
 
 ---
 
@@ -54,6 +54,20 @@ I strictly follow this rule:
 
 Otherwise:
 - I upload the **fully working app**
+
+---
+
+## 📦 Apps
+
+| App | Size | Design Guide | Prompts | Fix Prompts | Dev Notes | Review | Success |
+|-----|------|-------------|---------|-------------|-----------|--------|---------|
+| [TaskFlow](taskflow/) | Small | 0 | 1 | 0 | [Dev Notes](taskflow/DEV_NOTES.md) | [Review](taskflow/REVIEW.md) | ✅ |
+| [Project Manager](project_manager/) | Small | 0 | 1 | 3 | [Dev Notes](project_manager/DEV_NOTES.md) | [Review](project_manager/REVIEW.md) | ✅ |
+
+> Dev Notes — AI did the hard work, so it gets to write about its own problems 🤖
+>
+> Review — I take the credit, so I get to write about how great it is 😄
+
 
 ---
 
