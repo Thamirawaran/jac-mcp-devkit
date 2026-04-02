@@ -61,3 +61,19 @@ walker:pub EvalExpr {
         }
     }
 }
+
+def:pub EvalExprFn(expr: str) -> dict {
+    allowed = set("0123456789.+-*/() ");
+    if all([c in allowed for c in expr]) {
+        try {
+            result = eval(expr);
+            if result is not None {
+                return {"result": result};
+            }
+            return {"error": "Invalid expression"};
+        } except Exception {
+            return {"error": "Invalid expression"};
+        }
+    }
+    return {"error": "Invalid characters in expression"};
+}

@@ -6,7 +6,7 @@ sv import from endpoints { EvalExpr }
 cl def:pub app -> JsxElement {
     has display: str = "",
         error: str = "",
-        buttons: list = [
+        buttons: list[list[str]] = [
             ["7", "8", "9", "/"],
             ["4", "5", "6", "*"],
             ["1", "2", "3", "-"],
@@ -31,16 +31,29 @@ cl def:pub app -> JsxElement {
         if display.strip() == "" {
             return;
         }
-        result = await EvalExpr(expr=display);
-        if result and result.get("result") is not None {
-            display = str(result["result"]);
+        # no need to call root() here. root is enough
+        resp = root spawn EvalExpr(expr=display);
+        payload = None;
+
+        if resp and "reports" in resp and resp["reports"] and resp["reports"].length > 0 {
+            payload = resp["reports"][0];
         }
-        elif result and result.get("error") is not None {
-            error = result["error"];
+        elif resp and "result" in resp {
+            payload = resp;
         }
-        else {
-            error = "Invalid expression";
+        elif resp and "error" in resp {
+            payload = resp;
         }
+
+        if payload and "result" in payload {
+            display = str(payload["result"]);
+            return;
+        }
+        if payload and "error" in payload {
+            error = str(payload["error"]);
+            return;
+        }
+        error = "Invalid expression";
     }
 
     return <div
@@ -69,7 +82,7 @@ cl def:pub app -> JsxElement {
         >
             {display}
         </div>
-        {error != "" if <div style={{"color": "#dc3545", "textAlign" : "center", "marginBottom": "1rem"}}>{error}</div> else None}
+        {<div style={{"color": "#dc3545", "textAlign" : "center", "marginBottom": "1rem"}}>{error}</div> if error != "" else None}
         <div>
             {[
                 <div style={{"display": "flex", "gap": "0.5rem", "marginBottom": "0.5rem"}}>
@@ -79,8 +92,8 @@ cl def:pub app -> JsxElement {
                                 "flex": "1",
                                 "padding": "1rem",
                                 "fontSize": "1.25rem",
-                                "backgroundColor": (btn == "=" if "#3b82f6" else btn == "C" if "#ef4444" else "#e5e7eb"),
-                                "color": (btn == "=" || btn == "C" if "#fff" else "#333"),
+                                "backgroundColor": ("#3b82f6" if btn == "=" else "#ef4444" if btn == "C" else "#e5e7eb"),
+                                "color": ("#fff" if btn == "=" || btn == "C" else "#333"),
                                 "border": "none",
                                 "borderRadius": "8px",
                                 "cursor": "pointer",
