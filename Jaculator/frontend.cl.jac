@@ -3,57 +3,153 @@
 sv import from endpoints { Calculate, GetCalculatorState }
 
 def:pub app() -> JsxElement {
-    has display: str = "0",
-        current_input: str = "",
+    has current_input: str = "0",
+        pending_value: float = 0.0,
         pending_operation: str = "",
-        pending_value: float = 0.0;
+        should_reset_display: bool = False;
 
-    async def perform_operation(op: str, value: str) {
-        num_val = 0.0;
-        if value and value != "0" {
-            num_val = float(value);
+    def format_number(num: float) -> str {
+        num_str = str(num);
+        if num == int(num) {
+            return str(int(num));
         }
-        pending_operation = op;
-        pending_value = num_val;
-        current_input = "";
-        display = str(pending_value);
+        return num_str;
     }
 
-    async def press_number(num: str) {
+    def get_display_value() -> str {
+        if current_input != "" {
+            return current_input;
+        } elif pending_operation != "" {
+            return format_number(pending_value) + " " + get_op_symbol(pending_operation);
+        } else {
+            return "0";
+        }
+    }
+
+    def get_op_symbol(op: str) -> str {
+        if op == "add" {
+            return "+";
+        } elif op == "subtract" {
+            return "−";
+        } elif op == "multiply" {
+            return "×";
+        } elif op == "divide" {
+            return "÷";
+        } else {
+            return "";
+        }
+    }
+
+    def press_number(num: str) {
+        if should_reset_display {
+            current_input = "";
+            should_reset_display = False;
+        }
+
         if num == "." {
             if "." not in current_input {
-                current_input = current_input + num;
+                if current_input == "" {
+                    current_input = "0.";
+                } else {
+                    current_input = current_input + ".";
+                }
             }
-        } elif current_input == "" and num != "0" {
+        } elif current_input == "0" and num != "0" {
             current_input = num;
         } elif current_input == "" and num == "0" {
             current_input = "0";
         } else {
             current_input = current_input + num;
         }
-        display = current_input if current_input else "0";
     }
 
-    async def calculate_equals() {
-        if pending_operation and current_input {
-            num_val = float(current_input);
-            # root doesn't need to be called as a function here, just use root spawn
-            root spawn Calculate(operation=pending_operation, value=num_val);
-            display = str(pending_value + num_val);
-            current_input = "";
-            pending_operation = "";
-            pending_value = 0.0;
+    def perform_operation(op: str) {
+        if current_input == "" {
+            if pending_operation != "" {
+                pending_operation = op;
+            }
+            return;
         }
+
+        input_num = 0.0;
+        try {
+            input_num = float(current_input);
+        } except ValueError {
+            return;
+        }
+
+        if pending_operation != "" and pending_operation != "" {
+            result = 0.0;
+            if pending_operation == "add" {
+                result = pending_value + input_num;
+            } elif pending_operation == "subtract" {
+                result = pending_value - input_num;
+            } elif pending_operation == "multiply" {
+                result = pending_value * input_num;
+            } elif pending_operation == "divide" {
+                if input_num != 0.0 {
+                    result = pending_value / input_num;
+                } else {
+                    current_input = "Error: Div by 0";
+                    should_reset_display = True;
+                    return;
+                }
+            }
+            pending_value = result;
+            current_input = "";
+        } else {
+            pending_value = input_num;
+            current_input = "";
+        }
+
+        pending_operation = op;
+        should_reset_display = False;
     }
 
-    async def clear_display() {
-        # root doesn't need to be called as a function here, just use root spawn
-        root spawn Calculate(operation="clear", value=0.0);
-        display = "0";
-        current_input = "";
+    def calculate_equals() {
+        if pending_operation == "" or current_input == "" {
+            return;
+        }
+
+        input_num = 0.0;
+        try {
+            input_num = float(current_input);
+        } except ValueError {
+            return;
+        }
+
+        result = 0.0;
+        if pending_operation == "add" {
+            result = pending_value + input_num;
+        } elif pending_operation == "subtract" {
+            result = pending_value - input_num;
+        } elif pending_operation == "multiply" {
+            result = pending_value * input_num;
+        } elif pending_operation == "divide" {
+            if input_num != 0.0 {
+                result = pending_value / input_num;
+            } else {
+                current_input = "Error: Div by 0";
+                pending_operation = "";
+                should_reset_display = True;
+                return;
+            }
+        }
+
+        current_input = format_number(result);
         pending_operation = "";
         pending_value = 0.0;
+        should_reset_display = True;
     }
+
+    def clear_display() {
+        current_input = "0";
+        pending_value = 0.0;
+        pending_operation = "";
+        should_reset_display = False;
+    }
+
+    display_value = get_display_value();
 
     return
         <div
@@ -102,10 +198,11 @@ def:pub app() -> JsxElement {
                         "alignItems": "center",
                         "justifyContent": "flex-end",
                         "wordWrap": "break-word",
-                        "wordBreak": "break-all"
+                        "wordBreak": "break-all",
+                        "overflow": "hidden"
                     }}
                 >
-                    {display}
+                    {display_value}
                 </div>
 
                 <div
@@ -136,7 +233,7 @@ def:pub app() -> JsxElement {
                         </button>,
                         <button
                             key="divide"
-                            onClick={lambda -> None { perform_operation("divide", current_input); }}
+                            onClick={lambda -> None { perform_operation("divide"); }}
                             style={{
                                 "padding": "16px",
                                 "fontSize": "1.2rem",
@@ -152,7 +249,7 @@ def:pub app() -> JsxElement {
                         </button>,
                         <button
                             key="multiply"
-                            onClick={lambda -> None { perform_operation("multiply", current_input); }}
+                            onClick={lambda -> None { perform_operation("multiply"); }}
                             style={{
                                 "padding": "16px",
                                 "fontSize": "1.2rem",
@@ -210,7 +307,7 @@ def:pub app() -> JsxElement {
                         </button>,
                         <button
                             key="subtract"
-                            onClick={lambda -> None { perform_operation("subtract", current_input); }}
+                            onClick={lambda -> None { perform_operation("subtract"); }}
                             style={{
                                 "padding": "16px",
                                 "fontSize": "1.2rem",
@@ -268,7 +365,7 @@ def:pub app() -> JsxElement {
                         </button>,
                         <button
                             key="add"
-                            onClick={lambda -> None { perform_operation("add", current_input); }}
+                            onClick={lambda -> None { perform_operation("add"); }}
                             style={{
                                 "padding": "16px",
                                 "fontSize": "1.2rem",
